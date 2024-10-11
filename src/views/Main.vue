@@ -210,6 +210,7 @@ export default defineComponent({
   align-items: center;
 }
 
+/*
 .tool-bar-default {
   width: 80%;
   height: 80%;
@@ -231,6 +232,8 @@ export default defineComponent({
 .tool-bar-content-item-03 {
   content: url("../../../../../../Downloads/snuh-anesthesiology-front-main 2/src/assets/icons/measure.svg");
 }
+
+*/
 
 .tool-bar:hover {
   width: 200px;
