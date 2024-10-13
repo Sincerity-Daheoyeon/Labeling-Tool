@@ -36,9 +36,9 @@
         </tbody>
       </table>
     </div>
-    <div class="list-right">
+    <div class="list-right" style="position: relative;">
       <button class="more-button" @click="toggleOptions"><i class="fas fa-ellipsis" style="color: #FFFFFFDE;"></i></button>
-        <div v-if="showOptions" class="options-menu">
+        <div v-if="showOptions" class="options-menu" style="top: 40px;">
           <ul>
             <li><button @click="editTest">수정하기</button></li>
             <li><button @click="deleteTest">삭제하기</button></li>
@@ -74,7 +74,8 @@ export default {
         // Add more test entries as needed
       ],
       currentPage: 1,
-      itemsPerPage: 10
+      itemsPerPage: 10,
+      showOptions: false  // showOptions 추가
     };
   },
   computed: {
@@ -229,6 +230,36 @@ export default {
   color: #FFFFFFDE;
   border: none;
   border-radius: 60px;
+}
+
+.options-menu {
+  position: absolute;
+  top: 40px; /* 버튼 아래에 옵션 메뉴가 표시되도록 설정 */
+  left: 0;
+  background-color: #1E1E1E;
+  border: 1px solid #3E3E3E;
+  border-radius: 4px;
+  padding: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+  z-index: 100; /* 다른 요소보다 위에 표시되도록 설정 */
+}
+.options-menu ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+.options-menu li {
+  margin-bottom: 5px;
+}
+.options-menu button {
+  background: none;
+  border: none;
+  color: #FFFFFF;
+  cursor: pointer;
+  font-weight: bold;
+}
+.options-menu button:hover {
+  color: #7168F9;
 }
 
 .pagination {
