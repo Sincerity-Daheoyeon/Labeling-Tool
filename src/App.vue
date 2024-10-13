@@ -3,12 +3,9 @@
 </template>
 
 <script>
-import Main from "@/views/Main.vue";
+
 export default {
   name: "App",
-  views: {
-    Main,
-  },
 };
 </script>
 

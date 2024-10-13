@@ -10,6 +10,11 @@ const routes = [
     path: '/test-management',  // 새로운 URL 경로
     name: 'TestManagement',
     component: () => import("@/views/TestManagement.vue"),
+  },
+  {
+    path: '/layouts/AdminDefaultLayouts',
+    name: 'AdminManagement',
+    component: () => import("@/layouts/AdminDefaultLayout.vue"),
   }
 ];
 

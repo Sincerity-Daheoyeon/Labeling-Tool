@@ -4,7 +4,10 @@
     <div class="content-container">
       <AdminSideBar />
       <div class="content">
-        <router-view />
+        <DashboardSidebar />
+        <DashboardHeader />
+        <ReaderTestList />
+<!--        <router-view />-->
       </div>
     </div>
   </div>
@@ -13,13 +16,24 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import AdminSideBar from "../components/layout/AdminSideBar.vue";
-import NavigationBar from "../components/layout/NavigationBar.vue"; 
+import NavigationBar from "../components/layout/NavigationBar.vue";
+import AdminDashboard from "@/components/layout/AdminDashboard.vue";
+import DashboardHeader from "@/components/layout/DashboardHeader.vue";
+import DashboardSidebar from "@/components/layout/DashboardSidebar.vue";
+import ReaderTestList from "@/components/layout/ReaderTestList.vue";
 
 export default defineComponent({
+  name: "AdminManagement",
   components: {
+    DashboardSidebar,
+    DashboardHeader,
+    ReaderTestList,
     AdminSideBar,
     NavigationBar
   },
+  mounted() {
+    console.log('123');
+  }
 });
 </script>
 
@@ -41,5 +55,9 @@ export default defineComponent({
   background-color: #121212;
   padding: 20px;
   color: white;
+}
+
+body {
+  background-color: white;
 }
 </style>
