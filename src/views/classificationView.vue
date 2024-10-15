@@ -4,7 +4,7 @@ import ThumbnailComponents from "../components/thumbnail/ThumbnailComponents.vue
 import axios from "axios";
 
 export default defineComponent({
-  name: "MainView",
+  name: "ClassificationView",
   components: {
     ThumbnailComponents,
   },
