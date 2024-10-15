@@ -11,6 +11,7 @@ export default defineComponent({
   data() {
     return {
       currentPatientID: "", // 현재 선택된 환자의 ID
+      currentImageID: 0, // 현재 보여줄 이미지의 ID 번호
       thumbnailList: [] as { patient_name: string; thumbnail_image: string }[], // 썸네일 리스트
       patientImages: [] as string[], // 환자의 이미지 리스트
       currentImageIndex: 0, // 현재 보여줄 이미지 인덱스
@@ -18,35 +19,36 @@ export default defineComponent({
   },
 
   methods: {
-    updateImageInfo() {
-      const imageInfo = document.getElementById("image-info");
-      if (imageInfo) {
-        imageInfo.innerText = `${this.currentPatientID} - Index: ${
-          this.currentImageIndex + 1
-        }`;
-      }
+    handleThumbnailClick(patient: { patient_name: string }) {
+      // 썸네일 클릭 시 환자 ID 설정
+      this.setPatientID(patient.patient_name);
     },
-    setPatientID(patient_name: string, index: number) {
-      // this.currentPatientID = `${patient_name} (Index: ${index + 1})`;
-      // this.currentImageIndex = index;
-      // const imageTitle = document.getElementById(
-      //   "image-title"
-      // ) as HTMLSpanElement;
-      // if (imageTitle) {
-      //   imageTitle.innerText = patient_name;
-      // }
+    setPatientID(patient_name: string) {
       this.currentPatientID = patient_name;
-      this.currentImageIndex = index;
-      this.updateImageInfo();
+      const imageTitle = document.getElementById(
+        "image-title"
+
+      ) as HTMLSpanElement;
+      if (imageTitle) {
+        imageTitle.innerText = patient_name;
+      }
+      // 이미지 요소의 ID 설정
+      this.currentImageID = this.currentImageIndex;
+      const previewImage = document.getElementById("preview") as HTMLImageElement;
+      if (previewImage) {
+        previewImage.id = `image-${this.currentImageID}`; // 이미지 요소의 ID를 이미지 번호로 설정
+      }
     },
 
     // preview 이미지를 업데이트하는 메서드
     updatePreview() {
       if (this.patientImages.length > 0) {
-        const preview = document.getElementById("preview") as HTMLImageElement;
-        preview.src = `data:image/png;base64,${
-          this.patientImages[this.currentImageIndex]
-        }`;
+        const preview = document.getElementById(`image-${this.currentImageID}`) as HTMLImageElement;
+        if (preview) {
+          preview.src = `data:image/png;base64,${
+            this.patientImages[this.currentImageIndex]
+          }`;
+        }
       }
     },
 
@@ -78,7 +80,7 @@ export default defineComponent({
     },
     beforeUnmount() {
       // 컴포넌트가 파괴될 때 이벤트 리스너 해제
-      const previewElement = document.getElementById("preview");
+      const previewElement = document.getElementById(`image-${this.currentImageID}`);
       if (previewElement) {
         previewElement.removeEventListener("wheel", this.handleScroll);
       }
@@ -95,13 +97,13 @@ export default defineComponent({
       <div class="left-items"></div>
       <div class="left-items"></div>
       <div class="image-title-container">
-        <span class="image-title" id="image-title">{{ currentPatientID }}</span>
+        <span class="image-title" id="image-title"></span>
         <div class="image-container">
-          <img
-            id="preview"
-            src="src/assets/default_black.svg"
-            alt="loading..."
-          />
+<!--          <img-->
+<!--            id="preview"-->
+<!--            src=""-->
+<!--            alt="loading..."-->
+<!--          />-->
         </div>
       </div>
       <div class="left-items"></div>
@@ -109,25 +111,16 @@ export default defineComponent({
       <div class="reader-container">
         <div class="reader-text-container">
           <p style="color: white">
-            생각하시기에, 해당 환자는 어떤 것 같습니까? ICP가 20보다 작을 경우
-            (ICP &lt;= 20 mmHg) No IICP 버튼을, 20보다 크다고 생각될 경우 (ICP
-            &gt; 20 mmHg) IICP 버튼을 눌러주세요.
+            생각하시기에, 해당 환자는 어떤 것 같습니까? <br />
+            ICP가 20보다 작을 경우 (ICP &lt;= 20 mmHg) - No IICP 버튼을, <br>
+            20보다 크다고 생각될 경우 (ICP &gt; 20 mmHg) - IICP 버튼을 눌러주세요.
           </p>
         </div>
         <div class="reader-button-container">
           <button class="no-iicp" @click="setLabel(0)">
-            No IICP ( &lt;= 20)
+            No IICP ( &lt; 20)
           </button>
-          <button
-            class="iicp"
-            @click="
-              () => {
-                setLabel(1);
-              }
-            "
-          >
-            IICP ( > 20)
-          </button>
+          <button class="iicp" @click="setLabel(1)">IICP (&gt; 20)</button>
         </div>
       </div>
       <div class="left-items"></div>
@@ -157,27 +150,16 @@ export default defineComponent({
               : 'patient-meta-text',
           ]"
         >
-          <div class="description">환자 정보</div>
+          환자 정보
         </span>
       </div>
       <div class="rd-container">
-        <div class="grid-item-title">
-          <hr />
-          Data Image
-          <hr />
-        </div>
 
-        <div class="thumbnails-container">
-          <div
-            class="thumbnail-item"
-            v-for="(thumbnail, index) in thumbnailList"
-            :key="index"
-          >
-            <ThumbnailComponents
-              :thumbnail="thumbnail"
-              @click="setPatientID(thumbnail.patient_name)"
-            />
-          </div>
+        <div class="center-align">
+          <ThumbnailComponents
+            :thumbnailList="thumbnailList"
+            @select-thumbnail="fetchPatientImages"
+          />
         </div>
       </div>
     </div>
@@ -185,6 +167,8 @@ export default defineComponent({
 </template>
 
 <style scoped>
+/* Reader Test - Classification */
+
 .view-container {
   width: 100%;
   height: 100%;
@@ -192,18 +176,21 @@ export default defineComponent({
   justify-content: center;
   align-items: center;
   grid-template-columns: 1.75fr 1fr;
+  background: #121212;
+  box-shadow: 0 7px 29px rgba(100, 100, 111, 0.2);
+
 }
 
 .left-container {
   width: 100%;
   height: 100%;
-  background-color: #060a09;
+  background: #121212;
   display: grid;
   grid-template-rows: 0.5fr 5fr 3fr;
   grid-template-columns: 1fr 5fr 1fr;
   justify-items: center;
   align-items: center;
-  overflow: auto;
+  border-radius: 20px;
 }
 
 .tool-bar {
@@ -234,6 +221,31 @@ export default defineComponent({
   justify-items: center;
   align-items: center;
 }
+
+/*
+.tool-bar-default {
+  width: 80%;
+  height: 80%;
+  border-radius: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  content: url("../../../../../../Downloads/snuh-anesthesiology-front-main 2/src/assets/icons/menu.svg");
+}
+
+.tool-bar-content-item-01 {
+  content: url("../../../../../../Downloads/snuh-anesthesiology-front-main 2/src/assets/icons/zoom-in.svg");
+}
+
+.tool-bar-content-item-02 {
+  content: url("../../../../../../Downloads/snuh-anesthesiology-front-main 2/src/assets/icons/zoom-out.svg");
+}
+
+.tool-bar-content-item-03 {
+  content: url("../../../../../../Downloads/snuh-anesthesiology-front-main 2/src/assets/icons/measure.svg");
+}
+
+*/
 
 .tool-bar:hover {
   width: 200px;
@@ -272,10 +284,6 @@ export default defineComponent({
 .image-title-container {
   width: calc(min(80%, 55dvh));
   aspect-ratio: 1 / 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
 }
 
 .image-container {
@@ -297,17 +305,16 @@ export default defineComponent({
 }
 
 .image-title {
-  width: 50%;
+  width: 100%;
   height: 50px;
   padding: 0 30px;
   display: flex;
-  margin: auto 0;
   justify-content: center;
   align-items: center;
-  color: #ffffff;
-  font-size: 1.35rem;
-  font-weight: bold;
-  margin-bottom: 20px;
+  color: #FFFFFFDE;
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 28.64px;
 }
 
 .reader-container {
@@ -324,6 +331,7 @@ export default defineComponent({
   width: 100%;
   height: 100%;
   display: flex;
+  font-size: 16px;
   justify-content: center;
   align-items: center;
 }
@@ -335,7 +343,10 @@ export default defineComponent({
   text-align: center;
   align-content: center;
   justify-content: space-evenly;
-  font-size: 1.15rem;
+  font-size: 16px;
+  line-height: 19px;
+  font-weight: 400;
+  color: #FFFFFFDE;
 }
 
 .reader-button-container {
@@ -351,16 +362,16 @@ export default defineComponent({
   min-width: 120px;
   width: 80%;
   height: 80%;
-  color: rgba(255, 255, 255, 0.87);
-  background: rgba(113, 104, 249, 0.15);
-  border: 1px solid rgba(113, 104, 249, 1);
-  border-radius: 10px;
+  color: #FFFFFFDE;
+  background-color: #7168F926;
+  border: #7168F9 1px solid;
   cursor: pointer;
-  font-weight: bold;
+  font-weight: 400;
   font-family: "Nunito", sans-serif;
+  border-radius: 10px;
   overflow: hidden;
   padding: 8px;
-  font-size: 1rem;
+  font-size: 16px;
   transition: background-color 0.45s ease-in-out, box-shadow 0.45s ease-in-out,
     border 0.45s ease-in-out;
 }
@@ -382,29 +393,34 @@ export default defineComponent({
   width: 100%;
   height: 100%;
   display: grid;
-  grid-template-rows: 40svh 5fr;
+  gap: 10px;
+
 }
 
 .rt-container {
-  width: 100%;
-  height: auto;
-  padding: 10px 20px 10px 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  background-color: rgba(255, 255, 255, 0.05);
-  border-radius: 10px;
   margin-top: 10px;
+  width: 98%;
+  height: 97%;
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+  border: #FFFFFF0D 1px solid;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.05);
 }
 
-.patient-meta-text {
+#patient-meta {
   width: 100%;
-  color: white;
-  font-size: 1.05rem;
-  font-weight: bold;
-  padding: 10px;
+  justify-content: flex-start;  /* 수평 정렬: 왼쪽 */
+  align-items: flex-start;      /* 수직 정렬: 위쪽 */
+  padding: 30px;                /* 상단과 좌측 여백 */
+  color: #FFFFFFDE;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 19px;
   white-space: pre-wrap;
   max-height: 40svh;
+  margin: 0;
 }
 
 .patient-meta-text-center {
@@ -419,83 +435,22 @@ export default defineComponent({
   align-items: center;
 }
 
-.description {
-  width: 100%;
-  color: #ffffff;
-  font-size: 16px;
-  font-weight: bold;
-  margin-top: 0;
-  text-align: left;
-}
-
 .rd-container {
   position: relative;
-  width: 100%;
-
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 10px;
+  width: 98%;
+  height: calc(100% - 20px);
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
+  justify-content: flex-end;
   align-items: center;
-  padding-top: 20px;
-  margin-top: 20px;
-  margin-bottom: 20px;
+  border: #FFFFFF0D 1px solid;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.05);
 }
 
-.rd-container .grid-item-title {
-  position: absolute;
-  top: 0;
-  width: 100%;
-  height: 50px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: white;
-  font-size: 0.7rem;
-}
-
-.rd-container .grid-item-title hr {
-  width: 35%;
-  height: 1px;
-  background-color: #ffffff;
-  transform: scaleY(0.1); /* 세로 방향으로 축소 */
-}
 
 .left-container {
   overflow: auto;
-}
-
-.thumbnails-container {
-  width: 100%;
-  height: 100%;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  grid-template-rows: repeat(3, 1fr);
-  gap: 20px;
-  padding: 20px;
-  justify-items: center;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-.thumbnail-item {
-  box-sizing: border-box;
-  width: 80%;
-  height: 80%;
-  background-color: #141414;
-  border-radius: 10px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
-  transition: transform 0.3s;
-  color: #000000;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-}
-
-.thumbnail-item:hover {
-  transform: scale(1.05);
 }
 
 /* 웹킷 기반 브라우저에서의 스크롤바 스타일 */
