@@ -4,7 +4,7 @@ const routes = [
   {
     path: "/",
     name: "Main",
-    component: () => import("@/views/Main.vue"),
+    component: () => import("@/views/classificationView.vue"),
   },
   {
     path: '/test-management',  // 새로운 URL 경로
