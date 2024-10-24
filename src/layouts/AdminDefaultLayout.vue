@@ -1,10 +1,10 @@
 <template>
   <div class="default-layout">
-      <NavigationBar />
+    <NavigationBar />
     <div class="content-container">
       <AdminSideBar />
       <div class="content">
-        <DashboardSidebar />
+        <DashboardSidebar :breadcrumbItems="breadcrumbItems" />
         <DashboardHeader />
         <ReaderTestList />
 <!--        <router-view />-->
@@ -31,8 +31,16 @@ export default defineComponent({
     AdminSideBar,
     NavigationBar
   },
+  data() {
+    return {
+      breadcrumbItems: [
+        { name: 'Test Management', link: '/test-management' },
+        { name: 'Reader Test List' }
+      ],
+    };
+  },
   mounted() {
-    console.log('123');
+    console.log('Test Management mounted.');
   }
 });
 </script>

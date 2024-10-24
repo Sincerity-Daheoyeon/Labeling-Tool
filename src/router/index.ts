@@ -7,9 +7,15 @@ const routes = [
     component: () => import("@/views/classificationView.vue"),
   },
   {
-    path: '/test-management',  // 새로운 URL 경로
+    path: '/test-management',
     name: 'TestManagement',
     component: () => import("@/views/TestManagement.vue"),
+  },
+  {
+    path: '/test-management-detail',
+    name: 'TestManagementDetail',
+    component: () => import("@/views/TestManagementDetail.vue"),
+    props: true,
   },
   {
     path: '/layouts/AdminDefaultLayouts',
