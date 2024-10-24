@@ -158,7 +158,9 @@ export default {
   line-height: 16px;
   color: #FFFFFFDE;
 }
-
+.list:hover {
+  cursor: pointer;
+}
 .title-column .department {
   font-weight: 600;
   font-size: 12px;

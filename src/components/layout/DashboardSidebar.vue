@@ -1,20 +1,31 @@
 <template>
   <div class="sidebar">
+<!--    <breadcrumb-comp :items="breadcrumbItems" v-if="breadcrumbItems.length" />-->
     <nav>
       <ul>
-        <li><router-link to="/test-management">Test Management</router-link></li>
+        <li v-for="(item, index) in breadcrumbItems" :key="index" class="breadcrumb-item">
+          <router-link v-if="item.link" :to="item.link">{{ item.name }}</router-link>
+          <span v-else>{{ item.name }}</span>
+        </li>
       </ul>
     </nav>
-    <div class="title">
-      <h2>Reader Test List</h2>
-    </div>
   </div>
 </template>
 
 <script>
+import breadcrumbComp from "@/components/breadcrumbComp.vue";
 export default {
-  name: 'DashboardSidebar'
-}
+  name: 'DashboardSidebar',
+  components: {
+    // breadcrumbComp,
+  },
+  props: {
+    breadcrumbItems: {
+      type: Array,
+      default: () => [],
+    },
+  },
+};
 </script>
 
 <style scoped>
@@ -36,6 +47,7 @@ nav ul {
   margin: 0;
   margin-bottom: 10px;
 }
+
 nav ul li {
   margin-bottom: 10px;
 }
